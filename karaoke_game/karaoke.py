@@ -8,13 +8,12 @@ from karaoke_game.game_manager import Game
 
 FREQ_CUTOFF = 50
 MOVE_PER_FRAME = NOTE_SPEED * UPDATE_FREQ
-MIDI = 'read_midi/berge.mid'
+#MIDI = 'read_midi/berge.mid'
 
 win = window.Window(WINDOW_WIDTH, WINDOW_HEIGHT)
 game = Game()
-game.song = MIDI
+#game.selected_song = MIDI
 
-label = text.Label("", font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//4, anchor_x='center')
 singing_line = shapes.Rectangle(SINGING_LINE_X, 0, 1, WINDOW_HEIGHT, (50, 50, 50))
 user_note = shapes.Rectangle(SINGING_LINE_X - NOTE_HEIGHT // 2, WINDOW_HEIGHT // 2, NOTE_HEIGHT, NOTE_HEIGHT, OFF_COLOR)
 
@@ -46,7 +45,6 @@ def check_collision():
 
 def update(dt):
     if game.started and game.freq_gen:
-        game.elapsed_time += dt
         move_notes(game.song_notes)
 
         current_freq = next(game.freq_gen)
@@ -69,7 +67,6 @@ def on_draw():
         game.draw_start_screen()        
     elif game.started and not game.finished:
         game.draw_score()
-        label.draw()
         for note in game.song_notes:
             note.shape.draw()
         user_note.draw()
