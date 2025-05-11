@@ -27,15 +27,20 @@ class Game:
 
         self.get_songnames()
 
+    
+    # Get all .mid files in the read_midi directory
+
     def get_songnames(self):
         for file in os.listdir(MIDI_DIRECTORY):
             if file.endswith('.mid'):
                 self.songs.append(file)
 
+
     def on_key_press(self, symbol, modifiers):
         if symbol == window.key.SPACE and self.started and self.finished:
             self.started = False
             self.finished = False
+            self.current_song_note = None
         if symbol == window.key.DOWN:
             self.selected_song_index = self.selected_song_index + 1 if self.selected_song_index < len(self.songs) - 1 else 0
         if symbol == window.key.UP:
@@ -43,6 +48,7 @@ class Game:
         if symbol == window.key.ENTER and not self.started:
             self.selected_song = self.songs[self.selected_song_index]
             self.start_game()
+
 
     def start_game(self):
         self.load_notes()
@@ -52,12 +58,16 @@ class Game:
         self.freq_gen = freq_generator()
         threading.Timer(LEAD_TIME, self.play_midi).start()
 
+
+    # Load notes from the selected midi file and create Note objects. The width of a note object
+    # depends on its duration
+
     def load_notes(self):
         print("Loading notes...")
         self.notes = load_notes(MIDI_DIRECTORY + self.selected_song)
         self.song_notes.clear()
 
-        offset = NOTE_SPEED * (self.notes[0]["start"] - LEAD_TIME - AUDIO_BUFFER)
+        offset = NOTE_SPEED * (self.notes[0]["start"] - LEAD_TIME - self.notes[0]["start"])
 
         for note_data in self.notes:
             x = WINDOW_WIDTH + NOTE_SPEED * (note_data["start"] - LEAD_TIME) - offset
@@ -65,6 +75,7 @@ class Game:
             self.song_notes.append(note)
 
         print("Done loading!")
+
 
     def play_midi(self):
         pygame.mixer.init()
@@ -74,8 +85,11 @@ class Game:
         while pygame.mixer.music.get_busy():
             time.sleep(0.1)
 
-        time.sleep(2)
+        time.sleep(1)
         self.finished = True
+
+
+    # Drawing a list of available songs in the main menu
 
     def draw_song_list(self, offset):
         distance = 50
@@ -87,6 +101,7 @@ class Game:
             song_label.draw()
             self.song_labels.append(song_label)
 
+
     def draw_start_screen(self):
         header = text.Label("Welcome to Karaoke!", font_name=FONT_NAME, font_size=36, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT - 80, anchor_x='center')
         subtitle = text.Label("Use Arrow Keys to Pick a Song From the List and press ENTER:", font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=header.y - 80, anchor_x='center')
@@ -95,11 +110,14 @@ class Game:
         subtitle.draw()
         self.draw_song_list(subtitle.y)
 
+
     def draw_score(self):
         text.Label(f'Score: {self.score}', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH-100, y=WINDOW_HEIGHT-30, anchor_x='center').draw()
 
+
     def draw_loading_screen(self):
         text.Label(f'Brace your vocal chords...', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 40, anchor_x='center').draw()
+        
 
     def draw_finish_screen(self):
         text.Label(f'Your Score: {self.score}', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2, anchor_x='center', anchor_y='center').draw()

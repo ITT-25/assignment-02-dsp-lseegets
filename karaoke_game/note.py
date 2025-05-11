@@ -2,6 +2,9 @@ from pyglet import shapes
 
 from karaoke_game.utils import NOTE_HEIGHT, SLACK
 
+
+# Note object representing one note from a song
+
 class Note:
 
     def __init__(self, x, y, width):
