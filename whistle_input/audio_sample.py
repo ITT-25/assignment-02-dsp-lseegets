@@ -2,12 +2,14 @@ import pyaudio
 import numpy as np
 from matplotlib import pyplot as plt
 
+from chirp import Chirp
+from utils import RATE
+
 # Set up audio stream
 # reduce chunk size and sampling rate for lower latency
 CHUNK_SIZE = 1024  # Number of audio frames per buffer
 FORMAT = pyaudio.paInt16  # Audio format
 CHANNELS = 1  # Mono audio
-RATE = 44100  # Audio sampling rate (Hz)
 p = pyaudio.PyAudio()
 
 # print info about audio devices
@@ -19,8 +21,9 @@ for i in range(0, numdevices):
     if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
         print("Input Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name'))
 
-print('select audio device:')
-input_device = int(input())
+# print('select audio device:')
+# input_device = int(input())
+input_device = 1
 
 # open audio input stream
 stream = p.open(format=FORMAT,
@@ -39,15 +42,28 @@ ax.set_ylim(-30000, 30000)
 plt.ion()
 plt.show()
 
-# continuously capture and plot audio singal
-while True:
-    # Read audio data from stream
-    data = stream.read(CHUNK_SIZE)
 
-    # Convert audio data to numpy array
-    data = np.frombuffer(data, dtype=np.int16)
-    line.set_ydata(data)
+# Chirp object
+chirp = Chirp()
 
-    # Redraw plot
-    fig.canvas.draw()
-    fig.canvas.flush_events()
+
+# Get audio input and listen for chirps
+
+def listen():
+    # continuously capture and plot audio singal
+    while True:
+        # Read audio data from stream
+        data = stream.read(CHUNK_SIZE)
+
+        # Convert audio data to numpy array
+        data = np.frombuffer(data, dtype=np.int16)
+
+        # Get chirp data
+        result = chirp.check_chirp(data)
+        return result
+
+        # line.set_ydata(data)
+
+        # # Redraw plot
+        # fig.canvas.draw()
+        # fig.canvas.flush_events()

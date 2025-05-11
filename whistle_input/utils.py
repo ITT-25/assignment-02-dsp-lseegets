@@ -1,0 +1,3 @@
+RATE = 10000 # Audio sampling rate (Hz)
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
