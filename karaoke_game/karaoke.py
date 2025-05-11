@@ -1,18 +1,16 @@
 import pyglet
-from pyglet import window, shapes, text
+from pyglet import window, shapes
 
-from karaoke_game.utils import WINDOW_WIDTH, WINDOW_HEIGHT, FONT_NAME, NOTE_HEIGHT, UPDATE_FREQ, SINGING_LINE_X, NOTE_SPEED, OFF_COLOR, ON_COLOR
+from karaoke_game.utils import WINDOW_WIDTH, WINDOW_HEIGHT, NOTE_HEIGHT, UPDATE_FREQ, SINGING_LINE_X, NOTE_SPEED, OFF_COLOR, ON_COLOR
 from karaoke_game.game_manager import Game
 
 # RUN WITH py -m karaoke_game.karaoke
 
 FREQ_CUTOFF = 50
 MOVE_PER_FRAME = NOTE_SPEED * UPDATE_FREQ
-#MIDI = 'read_midi/berge.mid'
 
 win = window.Window(WINDOW_WIDTH, WINDOW_HEIGHT)
 game = Game()
-#game.selected_song = MIDI
 
 singing_line = shapes.Rectangle(SINGING_LINE_X, 0, 1, WINDOW_HEIGHT, (50, 50, 50))
 user_note = shapes.Rectangle(SINGING_LINE_X - NOTE_HEIGHT // 2, WINDOW_HEIGHT // 2, NOTE_HEIGHT, NOTE_HEIGHT, OFF_COLOR)
@@ -21,9 +19,15 @@ user_note = shapes.Rectangle(SINGING_LINE_X - NOTE_HEIGHT // 2, WINDOW_HEIGHT //
 def on_key_press(symbol, modifiers):
     game.on_key_press(symbol, modifiers)
 
+
+# Gradually move the note objects from right to left
+
 def move_notes(notes):
     for note in notes:
         note.update_pos(note.x - MOVE_PER_FRAME)
+
+
+# Check if note object collides with singing line
 
 def check_line_collision():
     for note in game.song_notes:
@@ -33,8 +37,11 @@ def check_line_collision():
             singing_line.y + singing_line.height > note.shape.y):
             game.current_song_note = note
 
+
+# Check if user_note collides with the current note from the song (i.e., they have the same frequency)
+
 def check_collision():
-    if game.current_song_note:
+    if game.current_song_note and not game.finished:
         if (user_note.x + user_note.width >  game.current_song_note.shape.x and
             user_note.y < game.current_song_note.shape.y + game.current_song_note.shape.height and
             user_note.y + user_note.height > game.current_song_note.shape.y):
@@ -46,6 +53,7 @@ def check_collision():
 def update(dt):
     if game.started and game.freq_gen:
         move_notes(game.song_notes)
+        user_note.color = OFF_COLOR
 
         current_freq = next(game.freq_gen)
         if current_freq >= FREQ_CUTOFF:
