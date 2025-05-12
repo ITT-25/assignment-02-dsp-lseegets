@@ -5,8 +5,8 @@ import time
 import os
 
 from karaoke_game.note import Note
-from karaoke_game.utils import WINDOW_WIDTH, WINDOW_HEIGHT, FONT_NAME, LEAD_TIME, NOTE_SPEED, AUDIO_BUFFER, MIDI_DIRECTORY
-from karaoke_game.audio_sample import freq_generator
+from karaoke_game.utils import WINDOW_WIDTH, WINDOW_HEIGHT, FONT_NAME, LEAD_TIME, NOTE_SPEED, SINGING_LINE_X, MIDI_DIRECTORY
+from karaoke_game.audio_input import freq_generator
 from read_midi.read_midi import load_notes
 
 class Game:
@@ -51,30 +51,31 @@ class Game:
 
 
     def start_game(self):
-        self.load_notes()
+        self.loading = True
+        threading.Thread(target=self.load_notes, daemon=True).start()
         self.score = 0
         self.finished = False
         self.started = True
         self.freq_gen = freq_generator()
-        threading.Timer(LEAD_TIME, self.play_midi).start()
 
 
-    # Load notes from the selected midi file and create Note objects. The width of a note object
-    # depends on its duration
+    # Load notes from the selected midi file and create Note objects. The width of a Note object
+    # depends on its duration and the speed at which the Note objects move
 
     def load_notes(self):
         print("Loading notes...")
         self.notes = load_notes(MIDI_DIRECTORY + self.selected_song)
         self.song_notes.clear()
 
-        offset = NOTE_SPEED * (self.notes[0]["start"] - LEAD_TIME - self.notes[0]["start"])
-
         for note_data in self.notes:
-            x = WINDOW_WIDTH + NOTE_SPEED * (note_data["start"] - LEAD_TIME) - offset
+            # Add a small offset to the x position for better alignment with the singing line (6 * note_data["start"])
+            x = SINGING_LINE_X + (NOTE_SPEED * (note_data["start"] + LEAD_TIME) + 6 * note_data["start"])
             note = Note(x, note_data["freq"], NOTE_SPEED * note_data["duration"])
             self.song_notes.append(note)
 
         print("Done loading!")
+        self.loading = False
+        threading.Timer(LEAD_TIME, self.play_midi).start()
 
 
     def play_midi(self):
@@ -87,6 +88,15 @@ class Game:
 
         time.sleep(1)
         self.finished = True
+
+    
+    def write_final_message(self):
+        if self.score <= 0:
+            return "Come on now, did you even try?"
+        elif self.score > 0 and self.score < 1500:
+            return "You certainly gave it your best!"
+        else:
+            return "Great job!"
 
 
     # Drawing a list of available songs in the main menu
@@ -116,10 +126,11 @@ class Game:
 
 
     def draw_loading_screen(self):
+        text.Label(f'Loading the song', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 80, anchor_x='center').draw()
         text.Label(f'Brace your vocal chords...', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 40, anchor_x='center').draw()
         
 
     def draw_finish_screen(self):
         text.Label(f'Your Score: {self.score}', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2, anchor_x='center', anchor_y='center').draw()
-        text.Label('You certainly gave it your best.', font_name=FONT_NAME, font_size=36, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 40, anchor_x='center', anchor_y='center').draw()
+        text.Label(self.write_final_message(), font_name=FONT_NAME, font_size=36, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 40, anchor_x='center', anchor_y='center').draw()
         text.Label('Press SPACE to Go Back to Main Menu', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 - 40, anchor_x='center', anchor_y='center').draw()

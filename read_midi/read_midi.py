@@ -42,12 +42,14 @@ def load_notes(filename):
         for msg in MidiFile(filename).play():
             current_time += msg.time
 
+            # Save all note_on times of the current message in case of overlapping notes
             if msg.type == 'note_on':
                 note_on_times[msg.note] = current_time
             elif msg.type == 'note_off':
                 note_start = note_on_times[msg.note]
-                note_duration = current_time - note_start
+                note_duration = current_time - note_start   # duration is needed to determine the visual width of the Note object
                 notes.append({'start': note_start, 'freq': note_to_frequency(msg.note), 'duration': round(note_duration, 2)})
                 del note_on_times[msg.note]
         save_notes_to_json(filename, notes)
+        
     return notes

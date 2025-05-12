@@ -67,13 +67,12 @@ pyglet.clock.schedule_interval(update, UPDATE_FREQ)
 @win.event
 def on_draw():
     win.clear()
-    
-    if game.loading:
-        game.draw_loading_screen()
 
-    if not game.started and not game.finished:
-        game.draw_start_screen()        
-    elif game.started and not game.finished:
+    if not game.started and not game.finished and not game.loading:
+        game.draw_start_screen()
+    elif game.loading and game.started and not game.finished:
+        game.draw_loading_screen() 
+    elif game.started and not game.finished and not game.loading:
         game.draw_score()
         for note in game.song_notes:
             note.shape.draw()
