@@ -1,6 +1,5 @@
 import pyaudio
 import numpy as np
-from matplotlib import pyplot as plt
 
 from chirp import Chirp
 from utils import RATE
@@ -33,24 +32,13 @@ stream = p.open(format=FORMAT,
                 frames_per_buffer=CHUNK_SIZE,
                 input_device_index=input_device)
 
-# set up interactive plot
-fig = plt.figure()
-ax = plt.gca()
-line, = ax.plot(np.zeros(CHUNK_SIZE))
-ax.set_ylim(-30000, 30000)
-
-plt.ion()
-plt.show()
-
 
 # Chirp object
 chirp = Chirp()
 
-
 # Get audio input and listen for chirps
-
 def listen():
-    # continuously capture and plot audio singal
+    # continuously capture audio singal
     while True:
         # Read audio data from stream
         data = stream.read(CHUNK_SIZE)
@@ -61,9 +49,3 @@ def listen():
         # Get chirp data
         result = chirp.check_chirp(data)
         return result
-
-        # line.set_ydata(data)
-
-        # # Redraw plot
-        # fig.canvas.draw()
-        # fig.canvas.flush_events()

@@ -1,7 +1,7 @@
 import pyglet
 from pyglet import shapes, window
 from utils import WINDOW_WIDTH, WINDOW_HEIGHT
-from audio_sample import listen
+from whistle_input.audio_input import listen
 
 win = window.Window(WINDOW_WIDTH, WINDOW_HEIGHT)
 
