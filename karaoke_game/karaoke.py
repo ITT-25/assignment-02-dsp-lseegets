@@ -4,16 +4,17 @@ from pyglet import window, shapes
 from karaoke_game.utils import WINDOW_WIDTH, WINDOW_HEIGHT, NOTE_HEIGHT, UPDATE_FREQ, SINGING_LINE_X, NOTE_SPEED, OFF_COLOR, ON_COLOR
 from karaoke_game.game_manager import Game
 
-# RUN WITH py -m karaoke_game.karaoke
-
 FREQ_CUTOFF = 50
 MOVE_PER_FRAME = NOTE_SPEED * UPDATE_FREQ
 
 win = window.Window(WINDOW_WIDTH, WINDOW_HEIGHT)
 game = Game()
 
-singing_line = shapes.Rectangle(SINGING_LINE_X, 0, 1, WINDOW_HEIGHT, (50, 50, 50))
+# The object representing the frequency from the user's input device
 user_note = shapes.Rectangle(SINGING_LINE_X - NOTE_HEIGHT // 2, WINDOW_HEIGHT // 2, NOTE_HEIGHT, NOTE_HEIGHT, OFF_COLOR)
+
+# The singing line where the user_note meets the incoming notes from the song
+singing_line = shapes.Rectangle(SINGING_LINE_X, 0, 1, WINDOW_HEIGHT, (50, 50, 50))
 
 @win.event
 def on_key_press(symbol, modifiers):
@@ -55,6 +56,8 @@ def update(dt):
         move_notes(game.song_notes)
         user_note.color = OFF_COLOR
 
+        # Get the incoming frequency from the input device. If it reaches the cutoff frequency,
+        # use it to set the height of the user_note
         current_freq = next(game.freq_gen)
         if current_freq >= FREQ_CUTOFF:
             user_note.y = current_freq
@@ -70,14 +73,17 @@ def on_draw():
 
     if not game.started and not game.finished and not game.loading:
         game.draw_start_screen()
+
     elif game.loading and game.started and not game.finished:
         game.draw_loading_screen() 
+
     elif game.started and not game.finished and not game.loading:
         game.draw_score()
         for note in game.song_notes:
             note.shape.draw()
         user_note.draw()
         singing_line.draw()
+        
     elif game.finished:
         game.draw_finish_screen()
 

@@ -1,6 +1,5 @@
 import pyaudio
 import numpy as np
-from matplotlib import pyplot as plt
 
 # Set up audio stream
 # reduce chunk size and sampling rate for lower latency
@@ -19,9 +18,8 @@ for i in range(0, numdevices):
     if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
         print("Input Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name'))
 
-# print('select audio device:')
-# input_device = int(input())
-input_device = 1
+print('select audio device:')
+input_device = int(input())
 
 # open audio input stream
 stream = p.open(format=FORMAT,
@@ -30,15 +28,6 @@ stream = p.open(format=FORMAT,
                 input=True,
                 frames_per_buffer=CHUNK_SIZE,
                 input_device_index=input_device)
-
-# set up interactive plot
-fig = plt.figure()
-ax = plt.gca()
-line, = ax.plot(np.zeros(CHUNK_SIZE))
-ax.set_ylim(-30000, 30000)
-
-# plt.ion()
-# plt.show()
 
 
 # Get the dominant frequency
@@ -49,8 +38,7 @@ def get_frequency(data):
     mask = frequencies >= 0
     spectrum = spectrum[mask]
     frequencies = frequencies[mask]
-    dominant_freq = np.argmax(spectrum)
-    return frequencies[dominant_freq]
+    return frequencies[np.argmax(spectrum)]
 
 
 def freq_generator():
@@ -61,9 +49,6 @@ def freq_generator():
 
         # Convert audio data to numpy array
         data = np.frombuffer(data, dtype=np.int16)
-        yield get_frequency(data)
 
-    # line.set_ydata(data)
-    # Redraw plot
-    # fig.canvas.draw()
-    # fig.canvas.flush_events()
+        # Get the dominant frequency from the data
+        yield get_frequency(data)
