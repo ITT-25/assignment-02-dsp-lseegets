@@ -1,5 +1,5 @@
 from pynput.keyboard import Controller, Key
-from whistle_input.audio_input import listen
+from audio_input import listen
 
 keyboard = Controller()
 

@@ -15,15 +15,15 @@ class Game:
         self.started = False
         self.finished = False
         self.loading = False
-        self.songs = []
-        self.song_labels = []
-        self.selected_song = None
-        self.selected_song_index = 0
-        self.notes = []
-        self.song_notes = []
-        self.current_song_note = None
+        self.songs = []                 # All available songs
+        self.song_labels = []           # The pyglet text objects representing the songs in a list
+        self.selected_song = None       # The selected song for the current session
+        self.selected_song_index = 0    # The index of the selected song
+        self.notes = []                 # An array of JSON objects containing data for each note in the song
+        self.song_notes = []            # An array of Note objects for the current song
+        self.current_song_note = None   # The note that is currently playing
         self.score = 0
-        self.freq_gen = None
+        self.freq_gen = None            # The current frequency from the user input device
 
         self.get_songnames()
 
@@ -59,8 +59,8 @@ class Game:
         self.freq_gen = freq_generator()
 
 
-    # Load notes from the selected midi file and create Note objects. The width of a Note object
-    # depends on its duration and the speed at which the Note objects move
+    # Load notes from the selected midi file and create Note objects. Once loading has finished,
+    # wait for [LEAD_TIME] seconds to start playing the song
 
     def load_notes(self):
         print("Loading notes...")
@@ -70,6 +70,8 @@ class Game:
         for note_data in self.notes:
             # Add a small offset to the x position for better alignment with the singing line (6 * note_data["start"])
             x = SINGING_LINE_X + (NOTE_SPEED * (note_data["start"] + LEAD_TIME) + 6 * note_data["start"])
+
+            # The width of a Note object depends on its duration and the speed at which the Note objects move
             note = Note(x, note_data["freq"], NOTE_SPEED * note_data["duration"])
             self.song_notes.append(note)
 
@@ -77,6 +79,8 @@ class Game:
         self.loading = False
         threading.Timer(LEAD_TIME, self.play_midi).start()
 
+
+    # Play the midi file. Once it's done playing, wait for one second before displaying the finish screen
 
     def play_midi(self):
         pygame.mixer.init()
@@ -126,7 +130,7 @@ class Game:
 
 
     def draw_loading_screen(self):
-        text.Label(f'Loading the song', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 80, anchor_x='center').draw()
+        text.Label(f'Preparing ' + str(os.path.splitext(self.songs[self.selected_song_index])[0]), font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 80, anchor_x='center').draw()
         text.Label(f'Brace your vocal chords...', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 40, anchor_x='center').draw()
         
 
