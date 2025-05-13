@@ -37,6 +37,9 @@ def check_line_collision():
             singing_line.y < note.shape.y + note.shape.height and
             singing_line.y + singing_line.height > note.shape.y):
             game.current_song_note = note
+            break
+        else:
+            game.current_song_note = None
 
 
 # Check if user_note collides with the current note from the song (i.e., they have the same frequency)

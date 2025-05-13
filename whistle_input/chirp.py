@@ -57,5 +57,4 @@ class Chirp:
         mask = frequencies >= 0
         spectrum = spectrum[mask]
         frequencies = frequencies[mask]
-        dominant_freq = np.argmax(spectrum)
-        return frequencies[dominant_freq]
+        return frequencies[np.argmax(spectrum)]

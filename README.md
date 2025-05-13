@@ -2,6 +2,19 @@
 
 ### Make sure an audio input device is connected to your computer for all programs.
 
+# Setup
+- Create and run a virtual environment (on Windows):
+    ```
+    py -m venv venv
+    venv\Scripts\activate
+    ```
+
+- Install requirements:
+
+    ```
+    pip install -r requirements.txt
+    ```
+
 # Karaoke Game
 - Run the game with the following command:
 

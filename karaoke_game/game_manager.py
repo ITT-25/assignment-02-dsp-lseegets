@@ -15,25 +15,25 @@ class Game:
         self.started = False
         self.finished = False
         self.loading = False
-        self.songs = []                 # All available songs
-        self.song_labels = []           # The pyglet text objects representing the songs in a list
-        self.selected_song = None       # The selected song for the current session
-        self.selected_song_index = 0    # The index of the selected song
-        self.notes = []                 # An array of JSON objects containing data for each note in the song
-        self.song_notes = []            # An array of Note objects for the current song
-        self.current_song_note = None   # The note that is currently playing
+        self.songs = self.get_songnames()   # All available songs
+        self.song_labels = []               # The pyglet text objects representing the songs in a list
+        self.selected_song = None           # The selected song for the current session
+        self.selected_song_index = 0        # The index of the selected song
+        self.notes = []                     # An array of JSON objects containing data for each note in the song
+        self.song_notes = []                # An array of Note objects for the current song
+        self.current_song_note = None       # The note that is currently playing
         self.score = 0
-        self.freq_gen = None            # The current frequency from the user input device
+        self.freq_gen = None                # The current frequency from the user input device
 
-        self.get_songnames()
 
-    
     # Get all .mid files in the read_midi directory
 
     def get_songnames(self):
+        songs = []
         for file in os.listdir(MIDI_DIRECTORY):
             if file.endswith('.mid'):
-                self.songs.append(file)
+                songs.append(file)
+        return songs
 
 
     def on_key_press(self, symbol, modifiers):
@@ -97,7 +97,7 @@ class Game:
     def write_final_message(self):
         if self.score <= 0:
             return "Come on now, did you even try?"
-        elif self.score > 0 and self.score < 1500:
+        elif self.score > 0 and self.score < 800:
             return "You certainly gave it your best!"
         else:
             return "Great job!"
@@ -118,7 +118,7 @@ class Game:
 
     def draw_start_screen(self):
         header = text.Label("Welcome to Karaoke!", font_name=FONT_NAME, font_size=36, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT - 80, anchor_x='center')
-        subtitle = text.Label("Use Arrow Keys to Pick a Song From the List and press ENTER:", font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=header.y - 80, anchor_x='center')
+        subtitle = text.Label("Use arrow keys to pick a song from the list and press ENTER:", font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=header.y - 80, anchor_x='center')
 
         header.draw()
         subtitle.draw()
@@ -137,4 +137,4 @@ class Game:
     def draw_finish_screen(self):
         text.Label(f'Your Score: {self.score}', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2, anchor_x='center', anchor_y='center').draw()
         text.Label(self.write_final_message(), font_name=FONT_NAME, font_size=36, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 + 40, anchor_x='center', anchor_y='center').draw()
-        text.Label('Press SPACE to Go Back to Main Menu', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 - 40, anchor_x='center', anchor_y='center').draw()
+        text.Label('Press SPACE to go back to main menu', font_name=FONT_NAME, font_size=20, x=WINDOW_WIDTH//2, y=WINDOW_HEIGHT//2 - 40, anchor_x='center', anchor_y='center').draw()
